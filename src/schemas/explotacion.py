@@ -41,3 +41,34 @@ class DiarioOperacionesResponse(DiarioOperacionesBase):
     campana_parcela_id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+# --- CAMPAÑA SCHEMAS ---
+class CampanaBase(BaseModel):
+    nombre: str
+    fecha_inicio: date
+    fecha_fin: Optional[date] = None
+
+class CampanaCreate(CampanaBase):
+    pass
+
+class CampanaResponse(CampanaBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# --- CAMPAÑA PARCELA SCHEMAS ---
+class CampanaParcelaBase(BaseModel):
+    tipo_cultivo: str
+    estado_cultivo: Optional[str] = "EN_PRODUCCION"
+
+class CampanaParcelaCreate(CampanaParcelaBase):
+    campana_id: int
+    parcela_id: int
+
+class CampanaParcelaResponse(CampanaParcelaBase):
+    id: int
+    campana_id: int
+    parcela_id: int
+
+    model_config = ConfigDict(from_attributes=True)

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from src.core.config import settings
-from src.api.v1 import usuarios, parcelas
+from src.api.v1 import usuarios, parcelas, campanas, operaciones
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -11,6 +11,8 @@ app = FastAPI(
 # Registrar los routers de la API v1
 app.include_router(usuarios.router, prefix="/api/v1")
 app.include_router(parcelas.router, prefix="/api/v1")
+app.include_router(campanas.router, prefix="/api/v1")
+app.include_router(operaciones.router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():
