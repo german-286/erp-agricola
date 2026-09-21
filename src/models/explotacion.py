@@ -8,6 +8,8 @@ class Parcela(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     nombre_finca = Column(String(100), nullable=False)
+    provincia = Column(String(50), nullable=True)
+    municipio = Column(String(50), nullable=True)
     poligono = Column(Integer, nullable=True)
     parcela = Column(Integer, nullable=True)
     recinto = Column(Integer, nullable=True)
@@ -20,7 +22,6 @@ class Parcela(Base):
     usuario = relationship("Usuario", back_populates="parcelas")
     campana_parcelas = relationship("CampanaParcela", back_populates="parcela", cascade="all, delete-orphan")
 
-
 class Campana(Base):
     __tablename__ = "campanas"
 
@@ -31,7 +32,6 @@ class Campana(Base):
 
     # Relaciones
     campana_parcelas = relationship("CampanaParcela", back_populates="campana", cascade="all, delete-orphan")
-
 
 class CampanaParcela(Base):
     __tablename__ = "campana_parcela"
@@ -46,7 +46,6 @@ class CampanaParcela(Base):
     campana = relationship("Campana", back_populates="campana_parcelas")
     parcela = relationship("Parcela", back_populates="campana_parcelas")
     operaciones = relationship("DiarioOperaciones", back_populates="campana_parcela", cascade="all, delete-orphan")
-
 
 class DiarioOperaciones(Base):
     __tablename__ = "diario_operaciones"

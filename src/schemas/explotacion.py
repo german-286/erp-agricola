@@ -1,11 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from datetime import date
 from decimal import Decimal
+from datetime import date
 
 # --- PARCELA SCHEMAS ---
 class ParcelaBase(BaseModel):
     nombre_finca: str
+    provincia: Optional[str] = "Granada"
+    municipio: Optional[str] = "Granada"
     poligono: Optional[int] = None
     parcela: Optional[int] = None
     recinto: Optional[int] = None
@@ -21,8 +23,8 @@ class ParcelaResponse(ParcelaBase):
     id: int
     usuario_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 # --- DIARIO DE OPERACIONES SCHEMAS ---
 class DiarioOperacionesBase(BaseModel):
@@ -38,5 +40,4 @@ class DiarioOperacionesResponse(DiarioOperacionesBase):
     id: int
     campana_parcela_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

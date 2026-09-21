@@ -11,14 +11,15 @@ router = APIRouter(prefix="/parcelas", tags=["Parcelas & Fincas"])
 
 @router.post("/usuario/{usuario_id}", response_model=ParcelaResponse, status_code=status.HTTP_201_CREATED)
 def crear_parcela(usuario_id: int, parcela: ParcelaCreate, db: Session = Depends(get_db)):
-    # Verificar que el usuario existe
     usr = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usr:
-        raise HTTPException(status_code=44, detail="El usuario especificado no existe.")
+        raise HTTPException(status_code=404, detail="El usuario especificado no existe.")
 
     nueva_parcela = Parcela(
         usuario_id=usuario_id,
         nombre_finca=parcela.nombre_finca,
+        provincia=parcela.provincia,
+        municipio=parcela.municipio,
         poligono=parcela.poligono,
         parcela=parcela.parcela,
         recinto=parcela.recinto,
