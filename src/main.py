@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from src.core.config import settings
+from src.api.v1 import usuarios, parcelas
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
     description="API REST para la gestión de explotaciones agrícolas, cuaderno de campo y facturación."
 )
+
+# Registrar los routers de la API v1
+app.include_router(usuarios.router, prefix="/api/v1")
+app.include_router(parcelas.router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():
