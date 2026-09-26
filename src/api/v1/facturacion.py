@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException, Response
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List
 from decimal import Decimal
+from jinja2 import Environment, FileSystemLoader
 
 from src.db.session import get_db
 from src.models.facturacion import Cliente, Factura, LineaFactura
@@ -9,6 +11,9 @@ from src.schemas.facturacion import (
     ClienteCreate, ClienteResponse,
     FacturaCreate, FacturaResponse
 )
+
+# Configurar motor de plantillas HTML
+templates = Environment(loader=FileSystemLoader("src/templates"))
 
 router = APIRouter(prefix="/facturacion", tags=["Facturación & Clientes"])
 
@@ -65,3 +70,26 @@ def crear_factura(usuario_id: int, factura_in: FacturaCreate, db: Session = Depe
 @router.get("/facturas/usuario/{usuario_id}", response_model=List[FacturaResponse])
 def listar_facturas(usuario_id: int, db: Session = Depends(get_db)):
     return db.query(Factura).filter(Factura.usuario_id == usuario_id).all()
+    
+@router.get("/facturas/{factura_id}/html", response_class=HTMLResponse)
+def obtener_factura_html(factura_id: int, db: Session = Depends(get_db)):
+    factura = db.query(Factura).filter(Factura.id == factura_id).first()
+    if not factura:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+
+    cliente = db.query(Cliente).filter(Cliente.id == factura.cliente_id).first()
+
+    # Recalcular base para desglose de la plantilla
+    base_imponible = sum(linea.subtotal for linea in factura.lineas)
+    monto_iva = base_imponible * (factura.porcentaje_iva / Decimal("100.0"))
+    monto_irpf = base_imponible * (factura.porcentaje_irpf / Decimal("100.0"))
+
+    template = templates.get_template("factura.html")
+    html_content = template.render(
+        factura=factura,
+        cliente=cliente,
+        base_imponible=base_imponible,
+        monto_iva=monto_iva,
+        monto_irpf=monto_irpf
+    )
+    return HTMLResponse(content=html_content)

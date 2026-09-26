@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura {{ factura.numero_factura }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333333;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+        .header {
+            width: 100%;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2e7d32;
+            padding-bottom: 15px;
+        }
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+            color: #555555;
+        }
+        .details-table {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .details-table td {
+            vertical-align: top;
+            width: 50%;
+        }
+        .box {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px 15px;
+            border: 1px solid #e9ecef;
+        }
+        .box-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .items-table th {
+            background-color: #2e7d32;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .items-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .items-table tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .totals-table {
+            width: 40%;
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+        .totals-table td {
+            padding: 6px 10px;
+        }
+        .totals-table .grand-total {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2e7d32;
+            border-top: 2px solid #2e7d32;
+            background-color: #f1f8e9;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 11px;
+            color: #888888;
+            border-top: 1px solid #e9ecef;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <table class="header">
+        <tr>
+            <td>
+                <div class="company-name">ERP Agrícola</div>
+                <div style="color: #666;">Gestión Integral de Explotaciones</div>
+            </td>
+            <td class="invoice-title">
+                FACTURA
+                <div style="font-size: 14px; font-weight: normal; color: #2e7d32; margin-top: 4px;">
+                    {{ factura.numero_factura }}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="details-table">
+        <tr>
+            <td style="padding-right: 10px;">
+                <div class="box">
+                    <div class="box-title">Emisor</div>
+                    <strong>Explotación Agrícola</strong><br>
+                    Fecha de Emisión: {{ factura.fecha_emision }}
+                </div>
+            </td>
+            <td style="padding-left: 10px;">
+                <div class="box">
+                    <div class="box-title">Cliente</div>
+                    <strong>{{ cliente.nombre_empresa }}</strong><br>
+                    NIF/CIF: {{ cliente.nif_cif }}<br>
+                    {% if cliente.direccion %}{{ cliente.direccion }}<br>{% endif %}
+                    {% if cliente.telefono %}Tel: {{ cliente.telefono }}{% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Concepto / Descripción</th>
+                <th class="text-right">Cant.</th>
+                <th class="text-right">Precio Un.</th>
+                <th class="text-right">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for linea in factura.lineas %}
+            <tr>
+                <td>{{ linea.concepto }}</td>
+                <td class="text-right">{{ "%.2f"|format(linea.cantidad) }}</td>
+                <td class="text-right">{{ "%.2f"|format(linea.precio_unitario) }} €</td>
+                <td class="text-right">{{ "%.2f"|format(linea.subtotal) }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="totals-table">
+        <tr>
+            <td>Base Imponible:</td>
+            <td class="text-right">{{ "%.2f"|format(base_imponible) }} €</td>
+        </tr>
+        <tr>
+            <td>IVA ({{ factura.porcentaje_iva }}%):</td>
+            <td class="text-right">+ {{ "%.2f"|format(monto_iva) }} €</td>
+        </tr>
+        {% if factura.porcentaje_irpf > 0 %}
+        <tr>
+            <td>IRPF ({{ factura.porcentaje_irpf }}%):</td>
+            <td class="text-right" style="color: #c62828;">- {{ "%.2f"|format(monto_irpf) }} €</td>
+        </tr>
+        {% endif %}
+        <tr class="grand-total">
+            <td>TOTAL:</td>
+            <td class="text-right">{{ "%.2f"|format(factura.total) }} €</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Documento generado automáticamente por ERP Agrícola. Gracias por su confianza.
+    </div>
+
+</body>
+</html>
